@@ -1,4 +1,0 @@
-haskell
-=======
-
-Haskell Language Features
