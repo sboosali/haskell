@@ -10,11 +10,22 @@ get x = do
  return $ z + 1
 
 
+-- Groovy `.?`, hack
+(.?) :: Maybe a -> (a -> Maybe b) -> Maybe b
+(.?) = (>>=)
+infixl 2 .?
+
+into = flip fmap
+infixl 2 `into`
+
+
 main = do
  let x1 = X (Just $ Y (Just 0))
- let x3 = X (Just $ Y Nothing)
- let x2 = X Nothing
+ let x2 = X (Just $ Y Nothing)
+ let x3 = X Nothing
+ let z4 = Just x1 .? getY .? getZ `into` (+2)
 
  print $ get x1
  print $ get x2
  print $ get x3
+ print $ z4

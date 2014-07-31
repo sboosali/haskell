@@ -6,8 +6,8 @@ FILE="${FILE%.*}"
 
 ARGS=${@:2}
 
-ghc  $FILE.hs  -o $FILE.hout  $GHC_OPTS
+ghc  $FILE.hs  -o $FILE.hx  $GHC_OPTS
 
 if [ $? -eq 0 ] # on success
-then ./$FILE.hout $ARGS # execute 
+then ./$FILE.hx $ARGS # execute 
 fi
