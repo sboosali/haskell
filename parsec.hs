@@ -57,6 +57,28 @@ parseCSV input = right (filter (/= [""])) $ parse csv "error" input
 -- ignore blanks
 
 
+-- Parsec is a "combinator" library
+--
+-- BNF
+-- float ::= sign? digit+ ('.' digit+)?
+--
+-- Haskell
+-- float :: Parser
+-- float = optional sign
+--     <*> oneOrMore digit
+--     <*> optional (lit ’.’ <*> oneOrMore digit)
+--
+-- Haskell
+-- float :: Parser Float
+-- float = do
+--  _sign   <- optional sign
+--  _digits <- oneOrMore digit
+--  _fracs  <- optional (do lit '.'
+--                          oneOrMore digit)
+--  return (_float _sign _digits _fracs)
+--
+-- "the combinators `optional`, `oneOrMore`, `(<*>)` combine parsers to make bigger parsers"
+
 main = do
  [file]   <- getArgs
  text     <- readFile file

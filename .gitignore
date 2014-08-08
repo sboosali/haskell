@@ -1,3 +1,6 @@
+todo/*
+*.hx
+
 dist
 cabal-dev
 *.o

@@ -6,7 +6,7 @@ FILE="${FILE%.*}"
 
 ARGS=${@:2}
 
-ghc  $FILE.hs  -o $FILE.hx  $GHC_OPTS
+ghc  $FILE.hs  -o $FILE.hx  $GHC_OPTS -Wall
 
 if [ $? -eq 0 ] # on success
 then ./$FILE.hx $ARGS # execute 
