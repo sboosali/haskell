@@ -1,5 +1,7 @@
 todo/*
 *.hx
+#*#
+.#*#
 
 dist
 cabal-dev

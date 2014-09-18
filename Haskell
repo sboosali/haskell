@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "$@"
+cabal exec runhaskell "$@"
