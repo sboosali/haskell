@@ -3,6 +3,13 @@ import System.Environment
 import Control.Arrow
 -- http://book.realworldhaskell.org/read/using-parsec.html
 
+{- $
+
+cabal install parsec
+./Haskell parsec.hs data/good.csv
+
+-}
+
 
 -- Parsec: basic CSV parsing, in 4 lines of Haskell
 
