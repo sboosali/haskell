@@ -30,7 +30,8 @@ reverse_isa_involution' = (reverse.reverse) === id
 -- the composition operator (.) binds most tightly (infixr 9), despite appearances
 -- `(reverse.reverse)` applies to the first argument and `id` applies to the second argument
 reverse_isa_involution'' :: [Ch] -> Bool
-reverse_isa_involution'' = (==) . (reverse.reverse) <*> id
+reverse_isa_involution'' = (==) <$> (reverse.reverse) <*> id
+-- (| (reverse.reverse) == id |) with idiom brackets
 
 
 -- randomly generates 100 strings, checking each against the predicate

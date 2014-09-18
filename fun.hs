@@ -9,14 +9,16 @@ reverse =  foldl (flip (:)) []
 powerset = filterM (\_ -> [True, False])
 
 
-loeb x = xs where xs = fmap ($ xs) x
+-- equality under
+data Point = {x :: Int, y :: Int, z :: Int}
+instance (Eq Point) where
+ (==) = 
 
 main = do
+
  print $ reverse [1..4]
 
  print $ powerset [1..4]
 
  let x = [x!!1 + 1, 2, x!!0 + x!!1]
- let l = loeb [\x -> x!!1 + 1, \x -> 2, \x -> x!!1 + x!!2]
  print $ x!!2
- print $ l!!2
