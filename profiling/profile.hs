@@ -1,5 +1,6 @@
 -- http://book.realworldhaskell.org/read/profiling-and-optimization.html
 -- https://www.haskell.org/ghc/docs/7.6.3/html/users_guide/profiling.html
+-- http://stackoverflow.com/questions/3276240/tools-for-analyzing-performance-of-a-haskell-program
 
 -- $ ghc  -prof -fprof-auto -caf-all -rtsopts  profile.hs
 -- $ ./profile +RTS -p -hc

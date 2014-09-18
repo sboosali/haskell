@@ -1,0 +1,76 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style type="text/css">
+span.lineno { color: white; background: #aaaaaa; border-right: solid white 12px }
+span.nottickedoff { background: yellow}
+span.istickedoff { background: white }
+span.tickonlyfalse { margin: -1px; border: 1px solid #f20913; background: #f20913 }
+span.tickonlytrue  { margin: -1px; border: 1px solid #60de51; background: #60de51 }
+span.funcount { font-size: small; color: orange; z-index: 2; position: absolute; right: 20 }
+span.decl { font-weight: bold }
+span.spaces    { background: white }
+</style>
+</head>
+<body>
+<pre>
+<span class="lineno">    1 </span>{- $
+<span class="lineno">    2 </span>
+<span class="lineno">    3 </span># bash
+<span class="lineno">    4 </span>rm *.tix *.mix  &amp;&amp;  ghc -fhpc  coverage.hs --make  &amp;&amp;  ./coverage
+<span class="lineno">    5 </span>hpc markup coverage  &amp;&amp;  open Main.hs.html
+<span class="lineno">    6 </span>
+<span class="lineno">    7 </span># fish
+<span class="lineno">    8 </span>rm *.tix *.mix  ;and  ghc -fhpc  coverage.hs --make  ;and  ./coverage
+<span class="lineno">    9 </span>hpc markup coverage  ;and  open Main.hs.html open hpc_index.html
+<span class="lineno">   10 </span>
+<span class="lineno">   11 </span># yellow expressions were never evaluated
+<span class="lineno">   12 </span># white expressions were evaluated
+<span class="lineno">   13 </span>
+<span class="lineno">   14 </span># green boolean expressions were always true
+<span class="lineno">   15 </span># red boolean expressions were always false
+<span class="lineno">   16 </span># white boolean expressions were both true and false
+<span class="lineno">   17 </span>
+<span class="lineno">   18 </span>-}
+<span class="lineno">   19 </span>
+<span class="lineno">   20 </span>
+<span class="lineno">   21 </span>-- 100% line coverage and 100% branch coverage (but &lt;100% condition coverage)
+<span class="lineno">   22 </span>-- hpc measures line coverage and branch coverage (but not condition coverage) 
+<span class="lineno">   23 </span>-- where &quot;branch&quot; means &quot;any guard, condition, qualifier&quot;
+<span class="lineno">   24 </span>-- where &quot;condition&quot; means &quot;every boolean subexpression&quot;
+<span class="lineno">   25 </span>-- http://en.wikipedia.org/wiki/Code_coverage#Coverage_criteria
+<span class="lineno">   26 </span>-- it looks all right (all white)
+<span class="lineno">   27 </span>-- but an uncovered condition has a buggy expression
+<span class="lineno">   28 </span><span class="decl"><span class="istickedoff">f x y</span>
+<span class="lineno">   29 </span><span class="spaces"> </span><span class="istickedoff">| x==0 &amp;&amp; y==0 || x&gt;0  &amp;&amp; y&gt;0   =  x / y</span>
+<span class="lineno">   30 </span><span class="spaces"> </span><span class="istickedoff">| x==0 &amp;&amp; y&gt;0  || x&gt;0  &amp;&amp; y==0  =  x + y</span>
+<span class="lineno">   31 </span><span class="spaces"> </span><span class="istickedoff">| <span class="tickonlytrue">otherwise</span>                     =  x - y</span></span>
+<span class="lineno">   32 </span>
+<span class="lineno">   33 </span>-- this function is logically equivalent
+<span class="lineno">   34 </span>-- it reports &lt;100% branch coverage
+<span class="lineno">   35 </span>-- we see the uncovered branch in red
+<span class="lineno">   36 </span>-- we see the unevaluated subexpression in yellow 
+<span class="lineno">   37 </span><span class="decl"><span class="istickedoff">f' x y</span>
+<span class="lineno">   38 </span><span class="spaces"> </span><span class="istickedoff">| <span class="tickonlyfalse">x==0 &amp;&amp; y==0</span>  =  <span class="nottickedoff">x / y</span></span>
+<span class="lineno">   39 </span><span class="spaces"> </span><span class="istickedoff">| x&gt;0  &amp;&amp; y&gt;0   =  x / y</span>
+<span class="lineno">   40 </span><span class="spaces"> </span><span class="istickedoff">| x==0 &amp;&amp; y&gt;0   =  x + y</span>
+<span class="lineno">   41 </span><span class="spaces"> </span><span class="istickedoff">| x&gt;0  &amp;&amp; y==0  =  x + y</span>
+<span class="lineno">   42 </span><span class="spaces"> </span><span class="istickedoff">| <span class="tickonlytrue">otherwise</span>     =  x - y</span></span>
+<span class="lineno">   43 </span>
+<span class="lineno">   44 </span>
+<span class="lineno">   45 </span><span class="decl"><span class="istickedoff">main = do</span>
+<span class="lineno">   46 </span><span class="spaces"></span><span class="istickedoff">-- print $ f 0 0</span>
+<span class="lineno">   47 </span><span class="spaces"> </span><span class="istickedoff">print $ f 0 1</span>
+<span class="lineno">   48 </span><span class="spaces"> </span><span class="istickedoff">print $ f 1 0</span>
+<span class="lineno">   49 </span><span class="spaces"> </span><span class="istickedoff">print $ f 1 1</span>
+<span class="lineno">   50 </span><span class="spaces"> </span><span class="istickedoff">print $ f (-1) (-1)</span>
+<span class="lineno">   51 </span><span class="spaces"></span><span class="istickedoff"></span>
+<span class="lineno">   52 </span><span class="spaces"></span><span class="istickedoff">-- print $ f' 0 0</span>
+<span class="lineno">   53 </span><span class="spaces"> </span><span class="istickedoff">print $ f' 0 1</span>
+<span class="lineno">   54 </span><span class="spaces"> </span><span class="istickedoff">print $ f' 1 0</span>
+<span class="lineno">   55 </span><span class="spaces"> </span><span class="istickedoff">print $ f' 1 1</span>
+<span class="lineno">   56 </span><span class="spaces"> </span><span class="istickedoff">print $ f'  (-1) (-1)</span></span>
+
+</pre>
+</body>
+</html>
