@@ -1,0 +1,3 @@
+translate -> traduit
+this      -> cette
+sentence  -> phrase
