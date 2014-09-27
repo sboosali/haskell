@@ -7,6 +7,9 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.Meta.Parse
 import Debug.Trace
 -- http://www.haskell.org/ghc/docs/latest/html/users_guide/template-haskell.html#th-example
+-- $ cabal install haskell-src-exts
+-- $ cabal exec runhaskell template_haskell/main.hs 
+
 
 {-
 
@@ -44,35 +47,29 @@ data Exp =
 -}
 
 
-{-
-
-simpleQQ = QuasiQuoter { quoteExp = stringE } -- in another module
-[$simpleQQ| a b c d |] == $(quoteExp simpleQQ " a b c d ")
-
--}
-
 
 -- makes Haskell source code
 -- will be spliced into the module that uses it at compile time
 debug :: QuasiQuoter
 debug = QuasiQuoter traceExp undefined undefined undefined
--- [$debug| 1+2 |] == $(quoteExp debug " 1+2 ")
+-- [debug| 1+2 |] == $(quoteExp debug " 1+2 ")
 -- defined for expression syntax contexts
--- undefined for pattern/declaration/type syntax contexts
+-- undefined for pattern/type/declaration syntax contexts
+-- @undefined@ is Haskell's null
 
 
--- e.g. trace ("1+2 = {1+2}") (1+2)
+-- e.g. trace "1+2 = {1+2}" (1+2)
 traceExp :: String -> Q Exp
 traceExp s = [|( trace $(showExp s) $(parseE s) )|]
--- [| ... |] is like lisp quoting
--- $( ... ) is like lisp unquoting i.e. splicing
+-- [| ... |] is like lisp quasi-quoting
+-- $( ... ) is like lisp un-quoting i.e. splicing
 -- both @String@s and @Q Exp@s are like lisp @sexp@
 -- in clojure, it would be `(trace (str (quote ~s) " = " ~s) ~s) with safety and stuff
 
--- e will you on top of me A niceaa they are going to you I carry outside.g. "1+2" ++ " = " ++ show (1+2)
+-- "1+2" ++ " = " ++ show (1+2)
 showExp :: String -> Q Exp
 showExp s = [|( $(stringE s) ++ " = " ++ show $(parseE s) )|]
--- symmetry between stringE and parseE
+-- shows symmetry between stringE and parseE
 
 {-
 
@@ -84,4 +81,4 @@ parseExp :: String -> Either String Exp
 
 parseE :: String -> Q Exp
 parseE = return . right . parseExp
- where right = either (const undefined) id
+ where right = either (const undefined) id  -- partial function oh no
