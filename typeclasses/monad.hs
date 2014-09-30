@@ -1,4 +1,6 @@
 import Prelude hiding (liftM, sequence_, mapM_)
+-- http://www.haskell.org/haskellwiki/Typeclassopedia#Monad
+-- $ runhaskell monad
 
 
 -- Monad Laws
