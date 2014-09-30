@@ -1,6 +1,7 @@
 {-# LANGUAGE QuasiQuotes #-}
-import Str
--- template haskell stuff must be imported (or something)
+import Str -- template haskell quasi-quarters must be imported
+
+-- $ runhaskell multiline_string
 
 
 multiline = [str|This is a multiline string.

@@ -1,3 +1,4 @@
+runhaskell literate_haskell.lhs
 
 this is text, not code.
 
