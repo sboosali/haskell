@@ -11,18 +11,18 @@ import Sorted
 -- simulate constructor with @unsorted@ function and @ViewPatterns@ extension
 -- @indices@ is an ordered list of nonnegative integers
 -- splices list in one pass: supports infinite list/indices, O(n) time
-byIndices list (unsorted -> indices) = indexed
+byIndices list (unsorted -> indices) = indices `indexing` withIndices
  where
- (indexed, _) = unzip $ indices `indexing` withIndices
  withIndices = zip list [0..]
 
  indexing _               []                           = []
  indexing []              _                            = []
  indexing (index:indices) (seek index -> [])           = []
- indexing (index:indices) (seek index -> (first:rest)) =
-  first : indices `indexing` (first:rest)
+ indexing (index:indices) (seek index -> (first@(element,_):rest)) =
+  element : indices `indexing` (first:rest)
+  -- @element@ is: the only symbol in the output list; at the right place, via @seek@
 
- seek index list = dropUntil (\(_,i) -> i == index) list
+ seek index list = dropUntil (\(snd -> i) -> i == index) list
  dropUntil _ []     = []
  dropUntil p (x:xs)
    | p x            = (x:xs)

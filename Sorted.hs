@@ -11,6 +11,7 @@ module Sorted (
 ) where
 
 import Data.List
+import Data.Maybe
 import Control.Arrow
 --import Test.QuickCheck
 
@@ -43,6 +44,20 @@ sortedFromThen   first second      = Sorted $ enumFromThen   first second
 sortedFromTo     first        last = Sorted $ enumFromTo     first        last
 sortedFrom       first             = Sorted $ enumFrom       first
 
+-- any list may be sorted
+-- checking whether sorted (linear time) is faster than sorting (super-linear time) 
+sortedMaybe list
+ | isSorted list = Just $ Sorted list 
+ | otherwise     = Nothing
+
+-- can this short-circuit?
+isSorted list = maybe False (const True) $ foldl increasing (Just 0) list
+ where
+ increasing (Just old) new
+  | old <= new = Just new
+  | otherwise = Nothing
+ increasing Nothing _ = Nothing
+
 -- arbitrary lists may NOT be @Sorted@
 -- let's user define constructors like @sortedFromThenTo@
 -- not type-checked, but is "name-checked" (i.e. hard to read, easy to grep for) 
@@ -52,3 +67,6 @@ unsafeCoerceSorted = Sorted
 main = do
  print $ sorted [1,3,2]
  print $ sortedFromThenTo 1 3 10
+
+ print $ isSorted [1,3,2]
+ print $ isSorted [1,2,3]
