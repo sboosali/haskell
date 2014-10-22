@@ -1,18 +1,18 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric, DefaultSignatures #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE FlexibleContexts, FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables, RankNTypes #-}
 import Generics.Deriving
 -- http://hackage.haskell.org/package/generic-deriving-1.6.3/docs/Generics-Deriving-Base.html
--- $ sudo cabal install generic-deriving
+-- $ cabal install generic-deriving
+-- $ cabal exec runhaskell generic_programming.hs
 
 
 {- a function takes a Datatype -}
 
-data A = B Int | C A
-encode'' (B x) = "B" ++ show x
-encode'' (C a) = "C" ++ encode'' a
+-- data A = B Int | C A
+-- encode'' (B x) = "B " ++ show x
+-- encode'' (C a) = "C (" ++ encode'' a ++ ")"
 
 -- `encode''` is a function
 
@@ -26,7 +26,7 @@ class Encode' f where
 
 -- the empty datatype has no constructor, `encode'` is never called
 instance Encode' V1 where
-  encode' x = undefined
+  encode' _ = undefined
 
 -- mark which constructor and encode its fields
 -- `f` and `g` are representations, one of: V1 (:+:) U1 K1 (:*:) M1
@@ -55,17 +55,21 @@ instance (Encode' f, Encode' g) => Encode' (f :*: g) where
 -- `f` is a representation, one of: V1 (:+:) U1 K1 (:*:) M1
 instance (Encode' f) => Encode' (M1 i t f) where
   encode' (M1 x) = encode' x
-""
+
 class Encode a where
   encode :: a -> String
+  -- `encode` is a function
+  -- manual instances don't need a `Generic` instance
 
   default encode :: (Generic a, Encode' (Rep a)) => a -> String
+  -- `default encode` is a generic function
+  -- automatic instances use the `Generic` instance
   encode = encode' . from
-
--- `encode` is a generic function
+  -- encode' :: (Rep r) => r -> String
 
 
 {- module Generics.Deriving.Base
+
 
 V1 instance -> datatype with 0 constructors
 
@@ -74,17 +78,16 @@ V1 instance -> datatype with 0 constructors
 (:+:) instance -> datatype with >1 constructors
 
 
-U1 instance -> datatype with constructors with 0 fields
+U1 instance -> constructor with 0 fields
 
-K1 instance -> datatype with constructors with 1 field
+K1 instance -> constructor with 1 field
 
-(:*:) instance -> datatype with constructors with >1 field
+(:*:) instance -> constructor with >1 field
 
 
 M1 instance -> any datatype
 
 -}
-
 
 data Tree a = Leaf | Node (Tree a) a (Tree a)
  deriving Generic
@@ -93,11 +96,59 @@ data Tree a = Leaf | Node (Tree a) a (Tree a)
 -- uses `default encode`
 instance (Encode a) => Encode (Tree a)
 
--- you can still manually implement Encode, without having to implement Generic
+-- you can still manually implement Encode, without having to implement Generic, via `default`
 -- uses `encode`
 instance Encode Int where
  encode = show
 
 
+
+{- Generic Default -}
+{- picks the first constructor as the default value, recurring on its arguments -}
+
+-- non-terminating?
+--  -- order is guaranteed, nesting is not guaranteed
+
+instance Default' U1 where
+  def' = U1
+instance (Default a) => Default' (K1 tag a) where
+  def' = K1 def -- recur into any defaultable type
+instance (Default' f, Default' g) => Default' (f :*: g) where
+  def' = def' :*: def'
+
+instance (Default' f) => Default' (S1 s f) where
+  def' = M1 def'
+instance (Default' f) => Default' (C1 c f) where
+  def' = M1 def'
+instance (Default' f) => Default' (f :+: g) where
+  def' = L1 def'
+instance (Default' f) => Default' (D1 t f) where
+  def' = M1 def'
+
+
+class Default' f where
+  def' :: f a -- the leftmost term is the first constructor
+
+
+class Default a where
+  def :: a
+
+  -- the default Default is the first constructor, defaulting recursively
+  default def :: (Generic a, Default' (Rep a)) => a
+  def = to (def' :: Rep a x)
+
+
+data X = A Integer String | B  deriving (Generic, Show)
+instance Default X
+
+instance Default Integer where def = 0
+instance Default String
+
+data Y = Y deriving (Generic, Show)
+instance Default Y
+
+
 main = do
  print $ encode (Node (Node Leaf 1 Leaf) 2 Leaf :: Tree Int)
+ print $ (def :: X)
+ print $ (def :: Y)
