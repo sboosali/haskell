@@ -106,23 +106,23 @@ instance Encode Int where
 {- Generic Default -}
 {- picks the first constructor as the default value, recurring on its arguments -}
 
--- non-terminating?
---  -- order is guaranteed, nesting is not guaranteed
+-- instance Default' V1 where
+--  no value implies no default value
 
 instance Default' U1 where
   def' = U1
-instance (Default a) => Default' (K1 tag a) where
-  def' = K1 def -- recur into any defaultable type
+instance (Default a) => Default' (K1 R a) where
+  def' = K1 def
 instance (Default' f, Default' g) => Default' (f :*: g) where
   def' = def' :*: def'
 
-instance (Default' f) => Default' (S1 s f) where
+instance (Default' f) => Default' (M1 S s f) where
   def' = M1 def'
-instance (Default' f) => Default' (C1 c f) where
+instance (Default' f) => Default' (M1 C c f) where
   def' = M1 def'
 instance (Default' f) => Default' (f :+: g) where
-  def' = L1 def'
-instance (Default' f) => Default' (D1 t f) where
+  def' = L1 def' -- order is guaranteed, nesting is not guaranteed
+instance (Default' f) => Default' (M1 D t f) where
   def' = M1 def'
 
 
@@ -144,11 +144,16 @@ instance Default X
 instance Default Integer where def = 0
 instance Default String
 
-data Y = Y deriving (Generic, Show)
+data Y = Y  deriving (Generic, Show)
 instance Default Y
+
+-- data N = S N | Z  deriving (Generic, Show) -- non-terminating at run-time 
+data N = Z | S N  deriving (Generic, Show)
+instance Default N
 
 
 main = do
  print $ encode (Node (Node Leaf 1 Leaf) 2 Leaf :: Tree Int)
  print $ (def :: X)
  print $ (def :: Y)
+ print $ (def :: N)
