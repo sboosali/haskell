@@ -109,10 +109,13 @@ instance Encode Int where
 -- instance Default' V1 where
 --  no value implies no default value
 
+-- no fields to default
 instance Default' U1 where
   def' = U1
+-- default the field
 instance (Default a) => Default' (K1 R a) where
   def' = K1 def
+-- default each field
 instance (Default' f, Default' g) => Default' (f :*: g) where
   def' = def' :*: def'
 
@@ -120,6 +123,7 @@ instance (Default' f) => Default' (M1 S s f) where
   def' = M1 def'
 instance (Default' f) => Default' (M1 C c f) where
   def' = M1 def'
+-- pick the first constructor, defaulting recursively
 instance (Default' f) => Default' (f :+: g) where
   def' = L1 def' -- order is guaranteed, nesting is not guaranteed
 instance (Default' f) => Default' (M1 D t f) where
@@ -133,13 +137,13 @@ class Default' f where
 class Default a where
   def :: a
 
-  -- the default Default is the first constructor, defaulting recursively
   default def :: (Generic a, Default' (Rep a)) => a
   def = to (def' :: Rep a x)
 
 
 data X = A Integer String | B  deriving (Generic, Show)
 instance Default X
+-- "Default" is not a derivable class
 
 instance Default Integer where def = 0
 instance Default String
@@ -152,8 +156,66 @@ data N = Z | S N  deriving (Generic, Show)
 instance Default N
 
 
+{- -}
+
+instance Constructors' U1 where
+  constructors' = [U1]
+instance Constructors' (K1 R a) where
+  constructors' = [K1 undefined]
+-- | both 'f' and 'g' can only be an M1 with either: (:*:) or K1 or U1.
+-- which all produce singleton lists: non-empty means 'head' is safe; non-"plural" singleton means no constructor is lost.
+instance (Constructors' f, Constructors' g) => Constructors' (f :*: g) where
+  constructors' = [head constructors' :*: head constructors']
+
+-- | an empty type has no constructors (i.e. the length of the constructors list is zero)
+instance Constructors' V1 where
+  constructors' = []
+-- | a sum type adds constructors (i.e. increasing the length of the constructors list)
+instance (Constructors' f, Constructors' g) => Constructors' (f :+: g) where
+  constructors' = map L1 constructors' ++ map R1 constructors'
+-- | the M1 instances are all 'map's, preserving the length of the constructors list.
+instance (Constructors' f) => Constructors' (M1 tag name f) where
+  constructors' = map M1 constructors'
+
+
+-- | really "values, one per constructor" not "constructors"
+class Constructors' f where
+ constructors' :: [f x]
+
+class Constructors a where
+ constructors :: [a]
+
+ default constructors :: (Generic a, Constructors' (Rep a)) => [a]
+ constructors = map to (constructors' :: [Rep a x])
+
+
+data Empty  deriving (Generic)
+instance Constructors Empty
+
+newtype Natural = Natural Integer  deriving (Generic, Show)
+instance Constructors Natural
+
+data Z = D | E String Integer Bool | F Z  deriving (Generic, Show)
+instance Constructors Z
+
+nameNatural (Natural {}) = "Natural"
+
+nameZ (D {}) = "D"
+nameZ (E {}) = "E"
+nameZ (F {}) = "F"
+
+
 main = do
+
+ putStrLn ""
  print $ encode (Node (Node Leaf 1 Leaf) 2 Leaf :: Tree Int)
+
+ putStrLn ""
  print $ (def :: X)
  print $ (def :: Y)
  print $ (def :: N)
+
+ putStrLn ""
+ print $ length (constructors :: [Empty]) 
+ print $ map nameNatural (constructors :: [Natural])
+ print $ map nameZ (constructors :: [Z])
