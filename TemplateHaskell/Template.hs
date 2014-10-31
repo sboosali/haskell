@@ -8,7 +8,7 @@ import Language.Haskell.Meta.Parse
 import Debug.Trace
 -- http://www.haskell.org/ghc/docs/latest/html/users_guide/template-haskell.html#th-example
 -- $ cabal install haskell-src-exts
--- $ cabal exec runhaskell template_haskell/main.hs 
+-- $ cabal install haskell-src-meta
 
 
 {-
