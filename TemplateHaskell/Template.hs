@@ -7,13 +7,11 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.Meta.Parse
 import Debug.Trace
 -- http://www.haskell.org/ghc/docs/latest/html/users_guide/template-haskell.html#th-example
--- $ cabal install haskell-src-exts
--- $ cabal install haskell-src-meta
 
 
 {-
 
-data QuasiQuoter = QuasiQuoter {	 
+Data QuasiQuoter = QuasiQuoter {	 
  quoteExp  :: String -> Q Exp
  quotePat  :: String -> Q Pat
  quoteType :: String -> Q Type
